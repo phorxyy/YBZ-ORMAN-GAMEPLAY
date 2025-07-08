@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zombi Kesme Oyunu</title>
+  <style>
+    canvas { background: #222; display: block; margin: 0 auto; }
+    body { text-align: center; color: white; font-family: sans-serif; }
+  </style>
+</head>
+<body>
+  <h1>🧟‍♂️ Zombi Kesme Oyunu</h1>
+  <p>WASD: Hareket | Boşluk: Kılıç</p>
+  <canvas id="game" width="800" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    let player = { x: 100, y: 300, w: 40, h: 40, color: "blue" };
+    let zombies = [];
+    let sword = false;
+    let score = 0;
+
+    function spawnZombie() {
+      let z = { x: 800, y: 300, w: 40, h: 40, color: "green", speed: 1 + Math.random() * 2 };
+      zombies.push(z);
+    }
+
+    function drawRect(obj) {
+      ctx.fillStyle = obj.color;
+      ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+    }
+
+    function update() {
+      // Temizle
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Oyuncu
+      drawRect(player);
+
+      // Kılıç saldırısı
+      if (sword) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(player.x + player.w, player.y + 10, 20, 10);
+      }
+
+      // Zombiler
+      zombies.forEach((z, i) => {
+        z.x -= z.speed;
+        drawRect(z);
+
+        // Çarpışma kontrol
+        if (sword && z.x < player.x + player.w + 20 && z.x > player.x && Math.abs(z.y - player.y) < 30) {
+          zombies.splice(i, 1);
+          score++;
+        }
+      });
+
+      // Skor
+      ctx.fillStyle = "white";
+      ctx.fillText("Skor: " + score, 10, 20);
+    }
+
+    // WASD
+    document.addEventListener("keydown", e => {
+      if (e.key === "a") player.x -= 10;
+      if (e.key === "d") player.x += 10;
+      if (e.key === "w") player.y -= 10;
+      if (e.key === "s") player.y += 10;
+      if (e.code === "Space") sword = true;
+    });
+    document.addEventListener("keyup", e => {
+      if (e.code === "Space") sword = false;
+    });
+
+    setInterval(() => spawnZombie(), 2000); // 2 sn’de bir zombi gelsin
+    setInterval(() => update(), 30);
+  </script>
+</body>
+</html>
